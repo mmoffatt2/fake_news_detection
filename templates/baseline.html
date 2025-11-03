@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fake News Study</title>
+  <script src="/static/script.js"></script>
+</head>
+<body>
+  <h2>Fake News Classification (No AI Assistance)</h2>
+  <p>Read each article and choose whether it is real or fake.</p>
+
+  <div id="task"></div>
+
+  <script>
+    const worker_id = "{{ worker_id }}";
+    const trials = {{ trials | safe }};
+    startStudy(trials, worker_id, "baseline");
+  </script>
+</body>
+</html>

@@ -6,14 +6,16 @@
 </head>
 <body>
   <h2>AI-Assisted Fake News Classification</h2>
-  <p>You may click “Get AI Suggestion” to see a model prediction before submitting.</p>
+  <p>You may click “Get AI Suggestion” to see a model prediction before answering.</p>
 
   <div id="task"></div>
 
   <script>
-    const worker_id = "{{ worker_id }}";
-    const trials = {{ trials | safe }};
-    startStudy(trials, worker_id, "assisted");
+    const WORKER_ID = "{{ worker_id }}";    // may be "unknown"
+    const COMPLETION_CODE = "{{ completion_code }}";
+    const TRIALS = {{ trials | safe }};
+
+    startStudy(TRIALS, WORKER_ID, "assisted", COMPLETION_CODE);
   </script>
 </body>
 </html>

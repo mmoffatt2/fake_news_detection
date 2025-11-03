@@ -6,6 +6,8 @@ from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import sqlite3
 import json
+import random
+import string
 from datetime import datetime
 from model import predict_fake_news
 
@@ -22,6 +24,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS responses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         worker_id TEXT,
+        completion_code TEXT,
         trial_id INTEGER,
         title TEXT,
         text TEXT,
@@ -43,20 +46,29 @@ init_db()
 
 # --------- ROUTES -----------
 
+def generate_code():
+    return "C-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
 @app.route("/task/baseline")
 def baseline():
-    worker_id = request.args.get("worker_id", "unknown")
-    trials = df.sample(20).to_dict(orient="records")
-    return render_template("baseline.html",
-                           worker_id=worker_id,
-                           trials=json.dumps(trials))
+    worker_id = request.args.get("workerId") or request.args.get("worker_id") or "unknown"
+    completion_code = generate_code()
+    trials = df.sample(15).to_dict(orient="records")
+    return render_template(
+        "baseline.html",
+        worker_id=worker_id,
+        completion_code=completion_code,
+        trials=json.dumps(trials)
+    )
 
 @app.route("/task/assisted")
 def assisted():
-    worker_id = request.args.get("worker_id", "unknown")
-    trials = df.sample(20).to_dict(orient="records")
+    worker_id = request.args.get("workerId") or request.args.get("worker_id") or "unknown"
+    completion_code = generate_code()
+    trials = df.sample(15).to_dict(orient="records")
     return render_template("assisted.html",
                            worker_id=worker_id,
+                           completion_code=completion_code,
                            trials=json.dumps(trials))
 
 @app.route("/predict", methods=["POST"])
@@ -73,12 +85,13 @@ def submit_trial():
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
     c.execute("""
-    INSERT INTO responses (worker_id, trial_id, title, text, date, ground_truth,
+    INSERT INTO responses (worker_id, completion_code, trial_id, title, text, date, ground_truth,
                            human_label, ai_label, ai_confidence, response_time,
                            confidence_rating, condition, timestamp)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        data["worker_id"],
+        data.get("worker_id"),
+        data.get("completion_code"),
         data["trial_id"],
         data["title"],
         data["text"],
@@ -98,8 +111,8 @@ def submit_trial():
 
 @app.route("/complete")
 def complete():
-    code = "COMPLETE-" + datetime.utcnow().strftime("%H%M%S")
-    return f"Thank you! Your completion code is: <b>{code}</b>"
+    code = request.args.get("completion_code", "ERROR")
+    return f"Thank you! Your completion code is:<br><b>{code}</b>"
 
 if __name__ == "__main__":
     # important for EC2

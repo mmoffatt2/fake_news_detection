@@ -11,9 +11,13 @@
   <div id="task"></div>
 
   <script>
-    const worker_id = "{{ worker_id }}";
-    const trials = {{ trials | safe }};
-    startStudy(trials, worker_id, "baseline");
+    // Passed from Flask
+    const WORKER_ID = "{{ worker_id }}";  // may be "unknown"
+    const COMPLETION_CODE = "{{ completion_code }}";
+    const TRIALS = {{ trials | safe }};
+
+    // Start the study with the condition label
+    startStudy(TRIALS, WORKER_ID, "baseline", COMPLETION_CODE);
   </script>
 </body>
 </html>

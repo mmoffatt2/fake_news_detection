@@ -1,3 +1,6 @@
+# how to ssh into ec2 instance
+# ssh -i ~/mturk-key.pem ubuntu@3.145.123.180
+
 # app.py
 from flask import Flask, request, jsonify, render_template
 import pandas as pd

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Path to your trained model folder
-MODEL_PATH = os.getenv("TRAINED_MODEL_DIR", "./combined-scratch")
+MODEL_PATH = os.getenv("TRAINED_MODEL_DIR", "./trained_model")
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
